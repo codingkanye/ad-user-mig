@@ -37,22 +37,27 @@ $newSAMAccountName = "$newLastNamePart$newFirstNamePart2"
 $newDisplayName = "$newFirstName $newLastName"
 
 try {
-    Set-ADUser -Identity $user -GivenName $newFirstName -Surname $newLastName -SamAccountName $newSAMAccountName -displayName $newDisplayName -Server edw.or.at
+    Set-ADUser -Identity $user -GivenName $newFirstName -Surname $newLastName -SamAccountName $newSAMAccountName -DisplayName $newDisplayName -Server edw.or.at
     
     $newEmail = "$newFirstNamePart.$newLastName@edw.or.at"
-    #$newMailNickname = "$newFirstNamePart.$newLastName"
+    $newMailNickname = "$newFirstNamePart.$newLastName"
+    $newUPN = "$newMailNickname@edw.or.at"
     
-    Set-ADUser -Identity $user -EmailAddress $newEmail<#-OtherAttributes @{mailNickname=$newMailNickname}#> -Server edw.or.at
+    Set-ADUser -Identity $user -EmailAddress $newEmail -Server edw.or.at
+    Set-ADUser -Identity $user -Replace @{mailNickname=$newMailNickname; UserPrincipalName=$newUPN} -Server edw.or.at
 
     Rename-ADObject -Identity $user.DistinguishedName -NewName $newSAMAccountName
     
     Write-Host "`b"
+    Write-Host "-----------------------------------------"
     Write-Host "User details updated successfully." -ForegroundColor Yellow
     Write-Host "`b"
     Write-Host "-----------------------------------------"
     Write-Host "New Username: $newSAMAccountName" -ForegroundColor Green
-    Write-Host "New Displayed Name: $newDisplayName" -ForegroundColor Green
-    Write-Host "New Email Address: $newEmail" -ForegroundColor Green
+        Write-Host "New Displayed Name: $newDisplayName" -ForegroundColor Green
+            Write-Host "New Mail Nickname: $newMailNickname" -ForegroundColor Green
+                Write-Host "New Email Address: $newEmail" -ForegroundColor Green
+                    Write-Host "New UPN: $newUPN" -ForegroundColor Green
     Write-Host "`b"
 } catch {
     Write-Host "Failed to update user details." -ForegroundColor Red
