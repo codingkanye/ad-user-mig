@@ -6,7 +6,7 @@ while (-not $validUserFound) {
     $samAccountName = Read-Host -Prompt "Please enter the Username you want to edit"
 
     try {
-        $user = Get-ADUser -Identity $samAccountName -Properties sAMAccountName, proxyAddresses, company -Server edw.or.at
+        $user = Get-ADUser -Identity $samAccountName -Properties sAMAccountName, proxyAddresses, company, department, description -Server edw.or.at
         if ($null -ne $user) {
             Write-Host "You chose to edit: $($user.sAMAccountName)" -ForegroundColor Green
             $validUserFound = $true
@@ -88,43 +88,42 @@ try {
     Write-Host "     ! Question !" -ForegroundColor Yellow
     $changeCompany = Read-Host -Prompt "Do you want to change the company as well? (yes/no)"
 
+    $newCompany = $user.company
     if ($changeCompany -eq "yes") {
         $newCompany = Read-Host -Prompt "Please enter the new company name"
         Set-ADUser -Identity $newSAMAccountName -Company $newCompany -Server edw.or.at
-        #Set-ADUser -Identity $user -Description $newCompany -Server edw.or.at
-        
-    }
-
-    Write-Host "-----------------------------------------"
-    Write-Host "     ! Question !" -ForegroundColor Yellow
-    $changeDepartment = Read-Host -Prompt "Do you want to change the Department as well? (yes/no)"
-
-    if ($changeDepartment -eq "yes") {
-      $newDepartment = Read-Host -Prompt "Please enter the new Department name"
-      Set-ADUser -Identity $newSAMAccountName -Department $newDepartment -Server edw.or.at
-      #Set-ADUser -Identity $user -Description $newCompany -Server edw.or.at
-      
-  }
-    if ($changeCompany -eq "yes") {
         Write-Host "`b"
         Write-Host "-----------------------------------------"
         Write-Host "`b"
         Write-Host "New Company: $newCompany" -ForegroundColor Green
         Write-Host "`b"
     } else {
-      Write-Host "You did not change the Company!" -ForegroundColor Red
+        Write-Host "`b"
+        Write-Host "-----------------------------------------"
+        Write-Host "You did not change the Company! The old Value stays." -ForegroundColor Red
     }
 
+    Write-Host "-----------------------------------------"
+    Write-Host "     ! Question !" -ForegroundColor Yellow
+    $changeDepartment = Read-Host -Prompt "Do you want to change the Department as well? (yes/no)"
+
+    $newDepartment = $user.department
     if ($changeDepartment -eq "yes") {
-      Write-Host "New Department: $newDepartment" -ForegroundColor Green
-  } else {
-   Write-Host "You did not change the Department!" -ForegroundColor Red
- }
+        $newDepartment = Read-Host -Prompt "Please enter the new Department name"
+        Set-ADUser -Identity $newSAMAccountName -Department $newDepartment -Server edw.or.at
+        Write-Host "`b"
+        Write-Host "-----------------------------------------"
+        Write-Host "`b"
+        Write-Host "New Department: $newDepartment" -ForegroundColor Green
+        Write-Host "`b"
+    } else {
+        Write-Host "`b"
+        Write-Host "-----------------------------------------"
+        Write-Host "You did not change the Department! The old Value stays." -ForegroundColor Red
+    }
 
-  $combinedCompanyDepartment = $newCompany + " / " + $newDepartment
-  Set-ADUser -Identity $newSAMAccountName -Description $combinedCompanyDepartment -Server edw.or.at
-
-    Write-Host "`b"
+    $combinedCompanyDepartment = "$newCompany / $newDepartment"
+    Set-ADUser -Identity $newSAMAccountName -Description $combinedCompanyDepartment -Server edw.or.at
     Write-Host "-----------------------------------------"
 } catch {
     Write-Host "Failed to update user details." -ForegroundColor Red

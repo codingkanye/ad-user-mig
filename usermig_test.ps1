@@ -98,7 +98,9 @@ try {
         Write-Host "New Company: $newCompany" -ForegroundColor Green
         Write-Host "`b"
     } else {
-        Write-Host "You did not change the Company!" -ForegroundColor Red
+        Write-Host "`b"
+        Write-Host "-----------------------------------------"
+        Write-Host "You did not change the Company! The old Value stays." -ForegroundColor Red
     }
 
     Write-Host "-----------------------------------------"
@@ -115,14 +117,13 @@ try {
         Write-Host "New Department: $newDepartment" -ForegroundColor Green
         Write-Host "`b"
     } else {
-        Write-Host "You did not change the Department!" -ForegroundColor Red
+        Write-Host "`b"
+        Write-Host "-----------------------------------------"
+        Write-Host "You did not change the Department! The old Value stays." -ForegroundColor Red
     }
 
-    # Combine Company and Department for the Description field
     $combinedCompanyDepartment = "$newCompany / $newDepartment"
     Set-ADUser -Identity $newSAMAccountName -Description $combinedCompanyDepartment -Server edw.or.at
-
-    Write-Host "`b"
     Write-Host "-----------------------------------------"
 } catch {
     Write-Host "Failed to update user details." -ForegroundColor Red
