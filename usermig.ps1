@@ -6,7 +6,7 @@ while (-not $validUserFound) {
     $samAccountName = Read-Host -Prompt "Please enter the Username you want to edit"
 
     try {
-        $user = Get-ADUser -Identity $samAccountName -Properties sAMAccountName -Server edw.or.at
+        $user = Get-ADUser -Identity $samAccountName -Properties sAMAccountName, proxyAddresses -Server edw.or.at
         if ($null -ne $user) {
             Write-Host "You chose to edit: $($user.sAMAccountName)" -ForegroundColor Green
             $validUserFound = $true
@@ -42,23 +42,43 @@ try {
     $newEmail = "$newFirstNamePart.$newLastName@edw.or.at"
     $newMailNickname = "$newFirstNamePart.$newLastName"
     $newUPN = "$newMailNickname@edw.or.at"
-    
+
     Set-ADUser -Identity $user -EmailAddress $newEmail -Server edw.or.at
     Set-ADUser -Identity $user -Replace @{mailNickname=$newMailNickname; UserPrincipalName=$newUPN} -Server edw.or.at
+
+    $existingProxyAddresses = @()
+    if ($user.proxyAddresses) {
+        $existingProxyAddresses = $user.proxyAddresses
+    }
+
+    $updatedProxyAddresses = @()
+    foreach ($address in $existingProxyAddresses) {
+        if ($address -like "SMTP:*") {
+            $updatedProxyAddresses += $address.ToLower().Replace("smtp:", "smtp:")
+        } else {
+            $updatedProxyAddresses += $address
+        }
+    }
+    $updatedProxyAddresses += "SMTP:$newUPN"
+
+    Set-ADUser -Identity $user -Replace @{proxyAddresses=$updatedProxyAddresses} -Server edw.or.at
 
     Rename-ADObject -Identity $user.DistinguishedName -NewName $newSAMAccountName
     
     Write-Host "`b"
     Write-Host "-----------------------------------------"
+    Write-Host "`b"
     Write-Host "User details updated successfully." -ForegroundColor Yellow
     Write-Host "`b"
     Write-Host "-----------------------------------------"
-    Write-Host "New Username: $newSAMAccountName" -ForegroundColor Green
-        Write-Host "New Displayed Name: $newDisplayName" -ForegroundColor Green
+      Write-Host "New Username: $newSAMAccountName" -ForegroundColor Green
+         Write-Host "New Displayed Name: $newDisplayName" -ForegroundColor Green
             Write-Host "New Mail Nickname: $newMailNickname" -ForegroundColor Green
-                Write-Host "New Email Address: $newEmail" -ForegroundColor Green
-                    Write-Host "New UPN: $newUPN" -ForegroundColor Green
+               Write-Host "New Email Address: $newEmail" -ForegroundColor Green
+                  Write-Host "New UPN: $newUPN" -ForegroundColor Green
+                     Write-Host "Updated Proxy Addresses: $($updatedProxyAddresses -join ', ')" -ForegroundColor Green
     Write-Host "`b"
+    Write-Host "-----------------------------------------"
 } catch {
     Write-Host "Failed to update user details." -ForegroundColor Red
     Write-Host $_.Exception.Message -ForegroundColor Red
