@@ -91,7 +91,13 @@ try {
     Write-Host "-----------------------------------------"
     Write-Host "`b"
 
-    Write-Host "     ! Question !" -ForegroundColor Yellow
+  } catch {
+    Write-Host "Failed to update user details." -ForegroundColor Red
+    Write-Host $_.Exception.Message -ForegroundColor Red
+   }
+}
+
+    <# Write-Host "     ! Question !" -ForegroundColor Yellow
     $changeCompany = Read-Host -Prompt "Do you want to change the company as well? (yes/no)"
 
     $newCompany = $user.company
@@ -139,6 +145,8 @@ try {
 } else {
    Write-Host "You chose to edit for @KK!" -ForegroundColor Green
 }
+
+ #>
 
 <# new lin #>
 
@@ -226,8 +234,14 @@ if ($edworkk -eq "kk") {
        Write-Host "Updated Proxy Addresses: $($updatedProxyAddresses -join ', ')" -ForegroundColor Green
        Write-Host "-----------------------------------------"
        Write-Host "`b"
+   }
+       catch {
+        Write-Host "Failed to update user details." -ForegroundColor Red
+        Write-Host $_.Exception.Message -ForegroundColor Red
+       }
+   }
    
-       Write-Host "     ! Question !" -ForegroundColor Yellow
+    <#   Write-Host "     ! Question !" -ForegroundColor Yellow
        $changeCompany = Read-Host -Prompt "Do you want to change the company as well? (yes/no)"
    
        $newCompany = $user.company
@@ -274,4 +288,5 @@ if ($edworkk -eq "kk") {
    
    } else {
       Write-Host "No valid command!" -ForegroundColor Red
-}
+}   
+      #>
