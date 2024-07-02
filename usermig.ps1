@@ -92,11 +92,10 @@ try {
     Write-Host "`b"
 
   } catch {
-    Write-Host "Failed to update user details." -ForegroundColor Red
-    Write-Host $_.Exception.Message -ForegroundColor Red
-   }
-}
-
+       Write-Host "Failed to update user details." -ForegroundColor Red
+       Write-Host $_.Exception.Message -ForegroundColor Red
+      }
+    }
     <# Write-Host "     ! Question !" -ForegroundColor Yellow
     $changeCompany = Read-Host -Prompt "Do you want to change the company as well? (yes/no)"
 
